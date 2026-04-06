@@ -61,7 +61,6 @@ dkms.conf
 *.atr
 *~
 test
-test.*
 *.orig
 *.rej
 _cache/
