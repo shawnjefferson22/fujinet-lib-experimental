@@ -17,9 +17,9 @@
  * @param *b pointer to buffer
  * @param len length of buffer
  */
-uint8_t _checksum(char *b, unsigned short len)
+uint8_t _checksum(char *b, uint16_t len)
 {
-  register unsigned short i;
+  uint16_t i;
   uint8_t _ck;
 
   // initialize checksum to zero
@@ -36,20 +36,42 @@ uint8_t _checksum(char *b, unsigned short len)
  * @brief loop to get data that is used many times
  * @param b The buffer to receive into
  */
-int _serial_get_loop(void)
+bool _serial_get_loop(char *b)
 {
-  clock_t start, now;
-  uint8_t _r;
-
+  clock_t start;
   start = clock();
-  while (ser_get((char *) &_r) == SER_ERR_NO_DATA) {
-    now = clock();
-    if (((now - start) / CLOCKS_PER_SEC) > LYNX_TIMEOUT) {
+
+  while (1) {
+    if (ser_get(b) == SER_ERR_OK)
+      return true;
+
+    if ((clock() - start) > (LYNX_TIMEOUT * CLOCKS_PER_SEC)) {
       _fn_error = FNIO_ERR_TIMEOUT;
-      return -1;
+      return false;
     }
   }
-
-  return _r;
 }
+
+
+bool _serial_recv_bytes(char *buf, unsigned int len)
+{
+    uint16_t i;
+    uint8_t _r;
+    clock_t start = clock();
+
+
+    for (i = 0; i < len; i++) {
+        while (ser_get(&_r) == SER_ERR_NO_DATA) {
+            if ((clock() - start) > (LYNX_TIMEOUT * CLOCKS_PER_SEC)) {
+                _fn_error = FNIO_ERR_TIMEOUT;
+                return false;
+            }
+        }
+
+        buf[i] = _r;
+    }
+
+    return true;
+}
+
 

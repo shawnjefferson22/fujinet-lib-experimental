@@ -11,7 +11,7 @@
 
 
 
-unsigned char fnio_init(void)
+uint8_t fnio_init(void)
 { 
   struct ser_params params = {
     SER_BAUD_62500,

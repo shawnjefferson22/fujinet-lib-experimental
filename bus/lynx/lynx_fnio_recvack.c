@@ -24,14 +24,13 @@ void fnio_flush_recv(void)
 // Call after commands that don't send back any data
 bool fnio_recv_ack(void)
 {
-  int t;
+  uint8_t t;
 
   // reset error status
   _fn_error = FNIO_ERR_NONE;
 
-  t = _serial_get_loop();
-  if (t < 0)
-    return false;
+  if(!_serial_get_loop(&t))
+    return false;               // timed out
 
   if (t == FUJICMD_ACK)
     return true;

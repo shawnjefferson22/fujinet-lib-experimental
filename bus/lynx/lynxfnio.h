@@ -8,8 +8,8 @@
 #include "fujinet-int.h"
 
 // Max message size
-#define FNIO_TX_LEN_MAX       1024
-#define SERIAL_PACKET_SIZE    256
+#define FNIO_TX_LEN_MAX       1025             // max disk block size + compression field
+//#define SERIAL_PACKET_SIZE    256
 
 #define LYNX_TIMEOUT          10
 
@@ -23,25 +23,22 @@ enum FNIO_ERROR_T {
         FNIO_ERR_GENERAL     // undefined error
 };
 
-// Some globals to help with code size/speed (could be moved to zero page)
-#ifdef UNUSED
-extern unsigned char _ck;    // checksum byte
-extern char _r;              // response/data from FN
-#endif /* UNUSED */
+// Some globals
 extern unsigned char _fn_error;
 
 
 // helper functions
-uint8_t _checksum(char *b, unsigned short len);
-int _serial_get_loop(void);
+uint8_t _checksum(char *b, uint16_t len);
+bool _serial_get_loop(char *b);
+bool _serial_recv_bytes(char *buf, uint16_t len);
 
 // main functions
-unsigned char fnio_error();
-unsigned char fnio_init(void);
-unsigned char fnio_done(void);
-unsigned char fnio_send_buf(unsigned char dev, char *buf, unsigned int len);
-bool fnio_recv_buf(char *buf, unsigned int *len, unsigned int maxlen);
-unsigned char fnio_recv_ack(void);
+uint8_t fnio_error();
+uint8_t fnio_init(void);
+uint8_t fnio_done(void);
+bool fnio_send_buf(uint8_t dev, char *buf, uint16_t len);
+bool fnio_recv_buf(char *buf, uint16_t *len, uint16_t maxlen);
+uint8_t fnio_recv_ack(void);
 void fnio_flush_recv(void);
 
 #endif /* FUJINET_H */

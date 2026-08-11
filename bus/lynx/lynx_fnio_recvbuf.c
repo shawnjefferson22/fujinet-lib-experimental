@@ -13,8 +13,8 @@
 
 bool fnio_recv_buf(char *buf, unsigned int *len, unsigned int maxlen)
 {
-  register unsigned short i;
-  int t;
+  //uint16_t i;
+  uint8_t t;
   char _r;
   uint8_t _ck;
 
@@ -23,14 +23,12 @@ bool fnio_recv_buf(char *buf, unsigned int *len, unsigned int maxlen)
   _fn_error = FNIO_ERR_NONE;
 
   // Get first length byte
-  t = _serial_get_loop();
-  if (t < 0)
+  if(!_serial_get_loop(&t))
     return false;
   *len = t << 8;
 
   // Get second length byte
-  t = _serial_get_loop();
-  if (t < 0)
+  if(!_serial_get_loop(&t))
     return false;
   *len |= t & 0xFF;
 
@@ -41,19 +39,21 @@ bool fnio_recv_buf(char *buf, unsigned int *len, unsigned int maxlen)
     *len = FNIO_TX_LEN_MAX;
 
   // Now get the payload
-  for (i=0; i<*len; ++i) {
-    t = _serial_get_loop();
+  /*for (i=0; i<*len; ++i) {
+    if(!_serial_get_loop();
     if (t < 0)
       return false;
     buf[i] = t;
-  }
+  }*/
+
+  if (!_serial_recv_bytes(buf, *len))
+    return(false);
 
   // Get the checksum
-  t = _serial_get_loop();
-  if (t < 0)
-    return false;         // timeout
+  if (!_serial_get_loop(&t))
+    return false;
 
-                          // checksum matches?
+  // checksum matches?
   _ck = _checksum(buf, *len);
   if (t == _ck) {
     ser_put(FUJICMD_ACK); // ACK

@@ -23,10 +23,10 @@
  * @param len Length of buffer to send
  * @return 1 on ACK, 0 on NAK
  */
-unsigned char fnio_send_buf(unsigned char dev, char *buf, unsigned int len)
+bool fnio_send_buf(unsigned char dev, char *buf, unsigned int len)
 {
-  register unsigned short i;
-  int ret;
+  uint16_t i;
+  uint8_t ret;
   char _r;
   uint8_t _ck;
 
@@ -47,7 +47,7 @@ unsigned char fnio_send_buf(unsigned char dev, char *buf, unsigned int len)
 
   // send the payload
   for (i=0; i<len; ++i) {
-    //while (ser_put(buf[i]) != SER_ERR_OVERFLOW);        // handle if we overflowed the TX buffer
+    //while (ser_put(buf[i]) == SER_ERR_OVERFLOW);        // handle if we overflowed the TX buffer
     ser_put(buf[i]);
     ser_get(&_r);         // get rid of reflected data we just sent
   }
@@ -57,8 +57,7 @@ unsigned char fnio_send_buf(unsigned char dev, char *buf, unsigned int len)
   ser_get(&_r);           // get rid of reflected data
 
   // Get response
-  ret = _serial_get_loop();
-  if (ret < 0)
+  if(!_serial_get_loop(&ret))
     return false;
 
   // ret contains our response, ACK or NACK
