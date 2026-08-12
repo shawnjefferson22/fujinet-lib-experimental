@@ -7,7 +7,7 @@
 
 
 
-uint16_t fuji_bus_read(uint8_t device, void *buffer, size_t length)
+uint16_t network_bus_read(uint8_t device, void *buffer, size_t length)
 {
   NETCALL_RV(FUJICMD_READ, device, buffer, length);
   return length;

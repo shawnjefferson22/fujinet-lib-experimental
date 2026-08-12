@@ -6,7 +6,7 @@
 #include <string.h>
 
 
-uint16_t fuji_bus_write(uint8_t device, const void *buffer, size_t length)
+uint16_t network_bus_write(uint8_t device, const void *buffer, size_t length)
 {
   NETCALL_D(FUJICMD_WRITE, device, buffer, length);
   return length;

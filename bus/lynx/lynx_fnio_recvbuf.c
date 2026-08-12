@@ -14,7 +14,7 @@
 bool fnio_recv_buf(char *buf, unsigned int *len, unsigned int maxlen)
 {
   //uint16_t i;
-  uint8_t t;
+  char t;
   char _r;
   uint8_t _ck;
 
@@ -32,19 +32,10 @@ bool fnio_recv_buf(char *buf, unsigned int *len, unsigned int maxlen)
     return false;
   *len |= t & 0xFF;
 
-  if (*len > maxlen)
+  if ((*len > maxlen) || (*len > FNIO_TX_LEN_MAX)) {
+    fnio_flush_recv();
     return false;
-
-  if (*len > FNIO_TX_LEN_MAX) // no more than LEN_MAX bytes
-    *len = FNIO_TX_LEN_MAX;
-
-  // Now get the payload
-  /*for (i=0; i<*len; ++i) {
-    if(!_serial_get_loop();
-    if (t < 0)
-      return false;
-    buf[i] = t;
-  }*/
+  }
 
   if (!_serial_recv_bytes(buf, *len))
     return(false);
